@@ -4,7 +4,7 @@
 
 ### 1. Clone the Repository
 ```bash
-git clone [https://github.com/nbariletto/cbi_partitions.git](https://github.com/nbariletto/cbi_partitions.git)
+git clone https://github.com/nbariletto/cbi_partitions.git
 cd cbi_partitions
 ```
 
@@ -228,4 +228,5 @@ print(f"Split-Collapsed Ball p-value:{p_val_split_coll_ball:.4f}")
 The figure below visualizes the partitions we tested and their resulting acceptance/rejection status.
 
 ![Test Partition Results](images/test_partitions_results.png)
+
 
