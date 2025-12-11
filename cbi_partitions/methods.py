@@ -72,7 +72,7 @@ def _contingency_table(p1, p2):
     return contingency
 
 @njit(cache=True)
-def _vi_dist(p1, p2, remap=False):
+def _vi_dist(p1, p2, remap=True):
     """Computes the Variation of Information (VI) distance."""
     if remap:
         p1, _ = _remap_labels(p1)
@@ -161,7 +161,7 @@ def _compute_pairwise_matrix(partitions, metric_code, remap):
 class PartitionKDE:
     """Partition Kernel Density Estimation (KDE) for conformal inference."""
     
-    def __init__(self, train_partitions, metric='vi', gamma=0.5, subsample_size=None, remap_labels=False):
+    def __init__(self, train_partitions, metric='vi', gamma=0.5, subsample_size=None, remap_labels=True):
         if metric not in ['vi', 'binder']:
             raise ValueError("Metric must be 'vi' or 'binder'")
         
@@ -363,4 +363,5 @@ class PartitionBall:
     def get_point_estimate(self):
 
         return self.point_estimate_
+
 
