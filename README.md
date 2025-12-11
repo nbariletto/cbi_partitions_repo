@@ -22,40 +22,42 @@ This tutorial provides a step-by-step reproduction of the experiment described i
 We generate a dataset of $N=100$ points from a mixture of 3 Gaussian components. The covariance is set to create overlap, inducing posterior uncertainty.
 
 ```python
-# --- MCMC Parameters ---
-mcmc_config = {
-    'n_final_samples': 6000,
-    'burn_in': 1000,
-    'thinning': 5,
-    'alpha': 0.03,
-    'py_sigma': 0.01,
+import numpy as np
+import matplotlib.pyplot as plt
+from collections import Counter
+from cbi_partitions import PartitionKDE, PartitionBall
+
+# For MCMC sampling (requires pyrichlet)
+from pyrichlet import mixture_models 
+
+# --- Simulation Configuration ---
+config = {
+    'n_nodes': 100, 
+    'p_dim': 2, 
+    'n_clusters': 3,
+    'seed': 12345
 }
 
-print("--- Running Pyrichlet MCMC ---")
-total_iter = mcmc_config['burn_in'] + (mcmc_config['n_final_samples'] * mcmc_config['thinning'])
-p_dim = config['p_dim']
+def simulate_gmm_data(n_nodes, p_dim, n_clusters, seed):
+    np.random.seed(seed)
+    means = np.array([[-3, -3], [-3, 3], [3, 0]])
+    cov = np.eye(p_dim) * 1.5
+    
+    true_labels = np.random.randint(0, n_clusters, n_nodes)
+    X = np.zeros((n_nodes, p_dim))
+    
+    for i in range(n_nodes):
+        X[i, :] = np.random.multivariate_normal(means[true_labels[i]], cov)
+        
+    return X, true_labels
 
-# Initialize Sampler
-mm = mixture_models.PitmanYorMixture(
-    alpha=mcmc_config['alpha'], 
-    pyd=mcmc_config['py_sigma'],
-    mu_prior=X.mean(axis=0), 
-    lambda_prior=0.01,
-    psi_prior=np.eye(p_dim) * 1.5, 
-    nu_prior=p_dim + 2,
-    rng=config['seed'], 
-    total_iter=total_iter,
-    burn_in=mcmc_config['burn_in'], 
-    subsample_steps=mcmc_config['thinning']
-)
+X, true_labels = simulate_gmm_data(**config)
 
-# Run Sampler
-mm.fit_gibbs(y=X, show_progress=False)
-print("--- Done ---")
-
-# Extract partitions
-mcmc_partitions = [samp['d'] for samp in mm.sim_params]
-partitions = np.array(mcmc_partitions, dtype=np.int64)
+# Visualize Ground Truth
+plt.figure(figsize=(3, 2))
+plt.scatter(X[:,0], X[:,1], c=true_labels, cmap='brg', edgecolor='k', s=50)
+plt.savefig("true_partition.png")
+plt.show()
 ```
 
 ![Ground Truth](images/true_partition.png)
@@ -272,6 +274,7 @@ Between-modes partition p-value (KDE):         0.0819
 Far-from-modes partition p-value (Ball):       0.1399
 Between-modes partition p-value (Ball):        0.2587
 ```
+
 
 
 
