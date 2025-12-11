@@ -294,7 +294,7 @@ class PartitionKDE:
         if not hasattr(self, 'dpc_s_'):
             raise RuntimeError("DPC variables not computed. Run .calibrate() first.")
             
-        plt.figure(figsize=(8, 6))
+        plt.figure(figsize=(4, 3))
         plt.scatter(self.dpc_s_, self.dpc_delta_, alpha=0.6, c='blue', edgecolors='k')
         plt.xlabel(r'Density ($s$)')
         plt.ylabel(r'Distance ($\delta$)')
@@ -362,4 +362,5 @@ class PartitionBall:
         return p_val
 
     def get_point_estimate(self):
+
         return self.point_estimate_
