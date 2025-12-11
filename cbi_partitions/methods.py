@@ -298,7 +298,6 @@ class PartitionKDE:
         plt.scatter(self.dpc_s_, self.dpc_delta_, alpha=0.6, c='blue', edgecolors='k')
         plt.xlabel(r'Density ($s$)')
         plt.ylabel(r'Distance ($\delta$)')
-        plt.title('Decision Graph')
         plt.grid(True, linestyle='--', alpha=0.7)
         if save_path:
             plt.savefig(save_path, bbox_inches='tight')
@@ -364,3 +363,4 @@ class PartitionBall:
     def get_point_estimate(self):
 
         return self.point_estimate_
+
