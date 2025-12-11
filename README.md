@@ -261,7 +261,7 @@ We now check what hypothesis testing produces under the VI-KDE metric and VI-bal
 
 ```python
 # Run conformal tests with KDE score
-p_val_far = kde.compute_p_value(x1_split_labels)
+p_val_far = kde.compute_p_value(far_labels)
 p_val_between = kde.compute_p_value(between_labels)
 
 # Initialize VI-ball procedure
@@ -288,6 +288,7 @@ Between-modes partition p-value (KDE):         0.0819
 Far-from-modes partition p-value (Ball):       0.1399
 Between-modes partition p-value (Ball):        0.2587
 ```
+
 
 
 
