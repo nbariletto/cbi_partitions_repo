@@ -1,27 +1,13 @@
-**cbi_partitions** is a Python library for performing Conformal Bayesian Inference (CBI) on MCMC output from random partition models. With a few line of codes it allows you to perform point estimation construct rigorous credible sets and perform valid hypothesis testing on clustering structures, even when the posterior distribution is multimodal.
+# cbi_partitions: Conformal Bayesian Inference for Partitions
+
+**cbi_partitions** is a Python library for performing Conformal Bayesian Inference (CBI) on partition-valued data (clustering results). It provides valid uncertainty quantification and hypothesis testing for clustering analysis, specifically addressing challenges with multimodal posteriors.
 
 ## Installation
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/nbariletto/cbi_partitions.git
-cd cbi_partitions
-```
+You can install this package directly from GitHub into any Python environment (no Git required):
 
-### 2. Set Up a Virtual Environment (Recommended)
 ```bash
-# macOS/Linux
-python3 -m venv venv
-source venv/bin/activate
-
-# Windows
-python -m venv venv
-venv\Scripts\activate
-```
-
-### 3. Install the Package
-```bash
-pip install .
+pip install https://github.com/nbariletto/cbi_partitions/archive/main.zip
 ```
 
 *Note: The tutorial below requires the `pyrichlet` library for the MCMC sampling step. If you do not have access to this library, you can substitute the sampling step with any standard Bayesian clustering sampler (e.g., Dirichlet Process Mixture Models).*
@@ -36,43 +22,40 @@ This tutorial provides a step-by-step reproduction of the experiment described i
 We generate a dataset of $N=100$ points from a mixture of 3 Gaussian components. The covariance is set to create overlap, inducing posterior uncertainty.
 
 ```python
-import numpy as np
-import matplotlib.pyplot as plt
-from cbi_partitions import PartitionKDE, PartitionBall
-
-# For MCMC sampling (requires pyrichlet)
-from pyrichlet import mixture_models 
-
-# --- Simulation Configuration ---
-config = {
-    'n_nodes': 100, 
-    'p_dim': 2, 
-    'n_clusters_true': 3,
-    'seed': 12345
+# --- MCMC Parameters ---
+mcmc_config = {
+    'n_final_samples': 6000,
+    'burn_in': 1000,
+    'thinning': 5,
+    'alpha': 0.03,
+    'py_sigma': 0.01,
 }
 
-def simulate_gmm_data(n_nodes, p_dim, n_clusters, seed):
-    np.random.seed(seed)
-    # Means arranged to create ambiguity between 2 and 3 clusters
-    means = np.array([[-3, -3], [-3, 3], [3, 0]])
-    cov = np.eye(p_dim) * 1.5
-    
-    true_labels = np.random.randint(0, n_clusters, n_nodes)
-    X = np.zeros((n_nodes, p_dim))
-    
-    for i in range(n_nodes):
-        X[i, :] = np.random.multivariate_normal(means[true_labels[i]], cov)
-        
-    return X, true_labels
+print("--- Running Pyrichlet MCMC ---")
+total_iter = mcmc_config['burn_in'] + (mcmc_config['n_final_samples'] * mcmc_config['thinning'])
+p_dim = config['p_dim']
 
-X, true_labels = simulate_gmm_data(**config)
+# Initialize Sampler
+mm = mixture_models.PitmanYorMixture(
+    alpha=mcmc_config['alpha'], 
+    pyd=mcmc_config['py_sigma'],
+    mu_prior=X.mean(axis=0), 
+    lambda_prior=0.01,
+    psi_prior=np.eye(p_dim) * 1.5, 
+    nu_prior=p_dim + 2,
+    rng=config['seed'], 
+    total_iter=total_iter,
+    burn_in=mcmc_config['burn_in'], 
+    subsample_steps=mcmc_config['thinning']
+)
 
-# Visualize Ground Truth
-plt.figure(figsize=(6, 5))
-plt.scatter(X[:,0], X[:,1], c=true_labels, cmap='viridis', edgecolor='k', s=50)
-plt.title("Ground Truth Partition (K=3)")
-plt.savefig("images/true_partition.png", dpi=300)
-plt.show()
+# Run Sampler
+mm.fit_gibbs(y=X, show_progress=False)
+print("--- Done ---")
+
+# Extract partitions
+mcmc_partitions = [samp['d'] for samp in mm.sim_params]
+partitions = np.array(mcmc_partitions, dtype=np.int64)
 ```
 
 ![Ground Truth](images/true_partition.png)
@@ -116,14 +99,28 @@ mcmc_partitions = [samp['d'] for samp in mm.sim_params]
 partitions = np.array(mcmc_partitions, dtype=np.int64)
 ```
 
+Below we plot the posterior distribution of the number of clusters implied by our model.
+```
+num_clusters = [len(np.unique(p)) for p in mcmc_partitions]
+k_counts = Counter(num_clusters)
+k_values_all = sorted(k_counts.keys())
+k_probs_all = [k_counts[k] / len(mcmc_partitions) for k in k_values_all]
+
+plt.figure(figsize=(6, 4))
+plt.bar(k_values_all, k_probs_all, color='skyblue')
+plt.xlabel("Number of Clusters (K)")
+plt.ylabel("Posterior Probability")
+plt.xticks(k_values_all)
+plt.grid(axis='y', linestyle='--')
+plt.show()
+```
 ![Posterior K Distribution](images/posterior_k.png)
 
 ### 3. Conformal Model Initialization
-We split the MCMC samples into a **Training Set** (5/6 of data) to estimate the partition density and a **Calibration Set** (1/6 of data) to compute non-conformity scores. We use the **PartitionKDE** model with the Variation of Information (VI) metric.
+We split the MCMC samples into a **Training Set** (5000 partitions) to estimate the partition density and a **Calibration Set** (1000 partitions) to compute non-conformity scores. We use the **PartitionKDE** model with the Variation of Information (VI) metric.
 
 ```python
-# --- Split Data (5/6 Train, 1/6 Calibration) ---
-np.random.seed(42)
+np.random.seed(config['seed'])
 indices = np.arange(partitions.shape[0])
 np.random.shuffle(indices)
 
@@ -138,27 +135,41 @@ kde = PartitionKDE(
     gamma=0.5
 )
 
-# --- Calibrate ---
+# --- Compute all quantities needed for CBI ---
 print("Calibrating KDE model...")
 kde.calibrate(calib_partitions)
 ```
 
-### 4. Detecting Multimodality (DPC)
-Standard summary statistics (like the MAP estimate) can be misleading if the posterior is multimodal. We use **Density Peak Clustering (DPC)** to visualize the posterior landscape and identify distinct modes.
+### 4. Pseudo-MAP point estimate
 
-```python
-# 1. Get Global Point Estimate
+Given the calibration scores we just computed, we compute the point estimate as the calibration partition with highest pseudo-density score. This is done using the .get_point_estimate() method.
+
+```
 point_est_partition = kde.get_point_estimate()
 
-# 2. Plot Decision Graph
-# 's': Local Density | 'delta': Distance to nearest point with higher density
-kde.plot_dpc_decision_graph()
-plt.savefig("images/dpc_decision_graph.png", dpi=300)
+plt.figure(figsize=(6, 4))
+plt.scatter(X[:,0], X[:,1], c=point_est_partition, cmap='brg', edgecolor='k', s=50)
 plt.show()
+```
 
-# 3. Extract Modes
-modes = kde.get_dpc_modes(s_thresh=0.75, delta_thresh=0.6)
-print(f"Found {len(modes)} modes in the posterior.")
+
+### 5. Detecting Multimodality (DPC)
+We use Density Peak Clustering (DPC) to visualize the posterior landscape and identify distinct modes.
+
+```python
+kde.plot_dpc_decision_graph()
+plt.show()
+```
+
+There are clearly two modes, corresponding to the two points that stand out as having both a large $\delta$ and $s$ value. Below we plot the corresponding partitions.
+
+```
+modes_idx = kde.get_dpc_modes(s_thresh=0.75, delta_thresh=0.6)
+
+fig, axs = plt.subplots(1, 2, figsize=(12, 4))
+for i in range(2):
+    axs[i].scatter(X[:,0], X[:,1], c=calib_partitions[modes_idx[i]], cmap='brg', edgecolor='k', s=50)
+plt.show()
 ```
 
 ![DPC Decision Graph](images/dpc_decision_graph.png)
@@ -167,7 +178,7 @@ The presence of multiple peaks in the decision graph (high density, high separat
 
 ![DPC Modes](images/dpc_modes.png)
 
-### 5. Hypothesis Testing
+### 6. Hypothesis Testing
 We test three specific clustering hypotheses to see if they are consistent with the data at a significance level of $\alpha=0.1$ (90% confidence).
 
 1.  **Collapsed (K=2):** Merging the two closest ground-truth clusters (0 and 1).
@@ -227,6 +238,7 @@ print(f"Split-Collapsed Ball p-value:{p_val_split_coll_ball:.4f}")
 The figure below visualizes the partitions we tested and their resulting acceptance/rejection status.
 
 ![Test Partition Results](images/test_partitions_results.png)
+
 
 
 
