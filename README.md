@@ -14,9 +14,12 @@ pip install https://github.com/nbariletto/cbi_partitions/archive/main.zip
 
 ---
 
+<br>
+
 ## Tutorial: Reproducing the Multimodal Experiment
 
 This tutorial provides a step-by-step reproduction of the experiment described in the paper. We simulate a dataset with ambiguous clustering structure, sample the posterior using a Pitman-Yor Process Mixture Model, and use `cbi_partitions` to quantify uncertainty and detect multimodality.
+
 
 ### 1. Data Simulation (Gaussian Mixture)
 We generate a dataset of $N=100$ points from a mixture of 3 Gaussian components. The covariance is set to create overlap, inducing posterior uncertainty.
@@ -60,6 +63,8 @@ plt.show()
 ```
 
 ![Ground Truth](images/true_partition.png)
+
+<br>
 
 ### 2. MCMC Sampling (Pitman-Yor Process)
 We use a Pitman-Yor Process Mixture Model to sample from the posterior. The parameters $\alpha=0.03$ and $\sigma=0.01$ are chosen to allow for flexibility in the number of clusters.
@@ -118,6 +123,8 @@ plt.show()
 ```
 ![Posterior K Distribution](images/posterior_k.png)
 
+<br>
+
 ### 3. Conformal Model Initialization
 We split the MCMC samples into a **Training Set** (5000 partitions) to estimate the partition density and a **Calibration Set** (1000 partitions) to compute non-conformity scores. We use the **PartitionKDE** model with the Variation of Information (VI) metric.
 
@@ -142,6 +149,8 @@ print("Calibrating KDE model...")
 kde.calibrate(calib_partitions)
 ```
 
+<br>
+
 ### 4. Pseudo-MAP point estimate
 
 Given the calibration scores we just computed, we compute the point estimate as the calibration partition with highest pseudo-density score. This is done using the `.get_point_estimate()` method.
@@ -154,6 +163,9 @@ plt.scatter(X[:,0], X[:,1], c=point_est_partition, cmap='brg', edgecolor='k', s=
 plt.show()
 ```
 
+![DPC Decision Graph](images/point_estimate.png)
+
+<br>
 
 ### 5. Detecting Multimodality (DPC)
 We use Density Peak Clustering (DPC) to visualize the posterior landscape and identify distinct modes.
@@ -176,8 +188,9 @@ for i in range(2):
 plt.show()
 ```
 
-
 ![DPC Modes](images/dpc_modes.png)
+
+<br>
 
 ### 6. Hypothesis Testing
 We test four specific clustering hypotheses to see if they are consistent with the data at a significance level of $\alpha=0.1$ (90% confidence).
@@ -217,6 +230,8 @@ Collapsed (K=2) p-value:       0.6893
 One cluster p-value:           0.0010
 100 cluster p-value:           0.0010
 ```
+
+<br>
 
 ### 6. Comparison with PartitionBall
 Finally, we compare results between the VI-KDE score procedure and VI balls (which are obtained as CBI sets using the VI distance from a point estimator as a non-conformity score, implemented usingusing `PartitionBall`).
@@ -273,6 +288,7 @@ Between-modes partition p-value (KDE):         0.0819
 Far-from-modes partition p-value (Ball):       0.1399
 Between-modes partition p-value (Ball):        0.2587
 ```
+
 
 
 
