@@ -21,7 +21,7 @@ pip install https://github.com/nbariletto/cbi_partitions/archive/main.zip
 This tutorial provides a step-by-step reproduction of the experiment described in [1], consisting of a CBI analysis of MCMC samples from a mixture-based random partition model fit to 2d simulated data. In particular, we will simulate a dataset with ambiguous clustering structure, sample partitions from a Pitman-Yor (PY) Gaussian mixture posterior, and use `cbi_partitions` to quantify uncertainty and detect posterior multimodality.
 
 
-### 1. Data Simulation
+### 1. Data Simulation and MCMC
 We generate a dataset of $N=100$ points from a mixture of 3 Gaussian components. The component-specific means and covariances are set to create overlap between the two leftmost-clusters, which will induce posterior uncertainty. The plot below, showing the original data-generating clustering structure, illustrates this point.
 
 ```python
@@ -60,11 +60,7 @@ plt.show()
 ![Ground Truth](images/true_partition.png)
 
 
-
-<br>
-
-### 2. MCMC Sampling
-We fit a $PY(0.03, 0.01)$ mean-covariance Gaussian mixture model. Note that the MCMC implementation we use is based on the `pyrichlet` library [2], which we import here and is easily installed using `pip`. This is just for illustration purposes: in general you can replace your partition-valued MCMC output and directly skip to the next CBI-specific steps.
+We now fit a $PY(0.03, 0.01)$ mean-covariance Gaussian mixture model. Note that the MCMC implementation we use is based on the `pyrichlet` library [2], which we import here and is easily installed using `pip`. This is just for illustration purposes: in general you can replace your partition-valued MCMC output and directly skip to the next CBI-specific steps.
 
 ```python
 from pyrichlet import mixture_models 
@@ -126,13 +122,17 @@ plt.show()
 
 <br>
 
-### 3. CBI - Initialization
+### 2. CBI - Initialization
 
 To begin, we import `PartitionKDE` and `PartitionBall` from the `cbi_partitions` library.
 
 ```python
 from cbi_partitions import PartitionKDE, PartitionBall
 ```
+
+From [1], recall that the building block of CBI is the computation, for any calibration partition $\theta$, of the VI-KDE score
+
+$$s(\theta) = \frac{1}{T}\sum_{t=1}^T \exp\{-\gamma \mathcal D_{VI}(\theta,\theta_t\}$$
 
 We split the MCMC samples into a **Training Set** (5000 partitions) to estimate the partition density and a **Calibration Set** (1000 partitions) to compute non-conformity scores. We use the **PartitionKDE** model with the Variation of Information (VI) metric.
 
@@ -161,7 +161,7 @@ kde.calibrate(calib_partitions)
 
 <br>
 
-### 4. Pseudo-MAP point estimate
+### 3. CBI - Pseudo-MAP point estimate
 
 Given the calibration scores we just computed, we compute the point estimate as the calibration partition with highest pseudo-density score. This is done using the `.get_point_estimate()` method.
 
@@ -177,7 +177,7 @@ plt.show()
 
 <br>
 
-### 5. Detecting Multimodality (DPC)
+### 4. CBI - Multimodality analysis
 We use Density Peak Clustering (DPC) to visualize the posterior landscape and identify distinct modes.
 
 ```python
@@ -202,7 +202,7 @@ plt.show()
 
 <br>
 
-### 6. Hypothesis Testing
+### 5. CBI - Hypothesis Testing
 We test four specific clustering hypotheses to see if they are consistent with the data at a significance level of $\alpha=0.1$ (90% confidence).
 
 1.  **The true partition (K=3);**
@@ -243,7 +243,7 @@ One cluster p-value:           0.0010
 
 <br>
 
-### 6. Comparison with PartitionBall
+### 6. Comparison with VI balls
 Finally, we compare results between the VI-KDE score procedure and VI balls (which are obtained as CBI sets using the VI distance from a point estimator as a non-conformity score, implemented usingusing `PartitionBall`).
 
 2.  **A partition far from both modes, moving away from the ''collapsed'' partition in the opposite direction compared to the true partition.** 
@@ -298,6 +298,7 @@ Between-modes partition p-value (KDE):         0.0819
 Far-from-modes partition p-value (Ball):       0.1399
 Between-modes partition p-value (Ball):        0.2587
 ```
+
 
 
 
