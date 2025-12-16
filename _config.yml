@@ -1,4 +1,5 @@
 title: CBI for RPMs
+description: A Tutorial on Conformalized Bayesian Inference for Random Partition Models
 theme: jekyll-theme-minimal
 markdown: kramdown
 kramdown:
