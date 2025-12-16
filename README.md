@@ -33,32 +33,16 @@ All partitions are represented as integer-valued arrays of length $n$, where the
 
 ## Partition distances
 
-### Variation of Information (VI)
+The library supports two distances between partitions:
 
-The VI distance between two partitions $\theta_1, \theta_2$ is defined as
+- **Variation of Information (VI)**;
+- **Binder distance** (one minus the Rand index).
 
-$$
-\mathrm{VI}(\theta_1, \theta_2)
-= H(\theta_1 \mid \theta_2) + H(\theta_2 \mid \theta_1),
-$$
+Both distances are used internally by the conformal models (`PartitionKDE` and `PartitionBall`) and are implemented using Numba for efficiency.  
+Cluster labels are optionally remapped internally to a compact range to ensure numerical stability and memory safety.
 
-where $H(\cdot \mid \cdot)$ denotes conditional entropy.  
-The VI distance is a metric and is invariant to label permutations.
-
-### Binder distance
-
-The Binder distance is defined as
-
-$$
-1 - \text{Rand Index},
-$$
-
-and measures disagreement between pairwise co-clustering decisions.
-
-### Label remapping
-
-For numerical stability and memory efficiency, cluster labels can be internally remapped to a compact set $\{0,\dots,K-1\}$.  
-This behavior is controlled by the `remap_labels` argument in all public APIs.
+Distance computation and label remapping are **internal implementation details** and are **not exposed as part of the public API**.  
+Users interact with distances exclusively through the high-level classes provided by the library.
 
 ---
 
@@ -293,4 +277,5 @@ Returns the center partition.
 [1] Bariletto, N., Ho, N., & Rinaldo, A. (2025). *Conformalized Bayesian Inference, with Applications to Random Partition Models*. arXiv:2511.05746.
 
 [2] Rodriguez, A., & Laio, A. (2014). *Clustering by fast search and find of density peaks*. Science, 344(6191), 1492–1496.
+
 
