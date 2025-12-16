@@ -275,7 +275,7 @@ is guaranteed to have posterior coverage of at least $1-\alpha$ (see [1] for det
 We test four specific clustering hypotheses at a significance level of $\alpha=0.1$, ensuring that the resulting set has at least 90% posterior coverage:
 
 1. **The true partition**;  
-2. **The "collapsed" partition**, obtained merging the two leftmost ground-truth clusters;  
+2. **The "collapsed" partition**, obtained by merging the two leftmost ground-truth clusters;  
 3. **The one-cluster trivial partition**, testing whether full homogeneity among data points is supported by the posterior;  
 4. **The 100-cluster trivial partition**, testing whether full heterogeneity among data points is supported by the posterior.
 
