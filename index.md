@@ -135,7 +135,7 @@ plt.show()
 
 <br>
 
-### 2. CBI - Initialization
+### 2. CBI – Initialization
 
 To begin, we import `PartitionKDE` and `PartitionBall` from the `cbi_partitions` library.
 
@@ -222,7 +222,7 @@ Point estimation resolves posterior uncertainty by selecting a two-cluster parti
 
 <br>
 
-### 4. CBI - Multimodality analysis
+### 4. CBI – Multimodality analysis
 Following [1], we now analyze posterior multimodality using ideas from density-based clustering [4], with the VI-KDE score serving as a proxy for posterior density. Specifically, the calibration step above has already computed (a) the VI-KDE score $s(\theta)$ and (b) the separation parameter $\delta(\theta)$ for each calibration sample $\theta$. Recall from [1] that $\delta(\theta)$ measures the distance between $\theta$ and the closest calibration partition with a higher VI-KDE score. Consequently, we can identify posterior modes by examining the decision graph plotted below and selecting partitions that exhibit unusually large values of both $s(\theta)$ (indicating they lie in high-density regions) and $\delta(\theta)$ (indicating they are well separated from other high-density samples).
 
 
