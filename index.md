@@ -1,6 +1,6 @@
 ---
 layout: default
-title: `cbi_partitions`: Conformalized Bayesian Inference for Random Partition Models with Python
+title: cbi_partitions: Conformalized Bayesian Inference for Random Partition Models with Python
 ---
 
 `cbi_partitions` is a Python library for performing Conformalized Bayesian Inference (CBI, introduced by [1]) for clustering problems based on partition-valued MCMC output.
