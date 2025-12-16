@@ -56,9 +56,9 @@ plt.figure(figsize=(3, 2))
 plt.scatter(X[:,0], X[:,1], c=true_labels, cmap='brg', edgecolor='k', s=50)
 plt.show()
 ```
-
-![Ground Truth](images/true_partition.png)
-
+<p align="center">
+  <img src="images/true_partition.png" alt="Ground Truth">
+</p>
 
 We now fit a $PY(0.03, 0.01)$ mean-covariance Gaussian mixture model. Note that the MCMC implementation we use is based on the `pyrichlet` library [2], which we import here and is easily installed using `pip`. This is just for illustration purposes: in general you can replace your partition-valued MCMC output and directly skip to the next CBI-specific steps.
 
@@ -323,6 +323,7 @@ Between-modes partition p-value (KDE):         0.0819
 Far-from-modes partition p-value (Ball):       0.1399
 Between-modes partition p-value (Ball):        0.2587
 ```
+
 
 
 
