@@ -1,4 +1,4 @@
-# cbi_partitions: Conformal Bayesian Inference for Random Partition Models
+# `cbi_partitions`: Conformal Bayesian Inference for Random Partition Models
 
 `cbi_partitions` is a Python library for performing Conformalized Bayesian Inference (CBI, introduced by [1]) for clustering problems based on partition-valued MCMC output from Bayesian random partition models. Leveraging MCMC samples and the Variation-of-Information (VI) metric between data partitions, the library provides: (i) a principled point estimate of the data clustering; (ii) credible sets of partitions with guaranteed posterior coverage and controlled size, built from a normalized measure of posterior typicality for any given partition (interpretable as a $p$-value and suitable for formal hypothesis testing); and (iii) a density-based clustering approach to explore and summarize the multimodal structure of the posterior distribution over the space of partitions.
 
@@ -16,13 +16,13 @@ pip install https://github.com/nbariletto/cbi_partitions/archive/main.zip
 
 <br>
 
-## Tutorial: A multimodal posterior distribution over partitions
+## Tutorial: Analyzing a multimodal posterior distribution over partitions
 
-This tutorial provides a step-by-step reproduction of the experiment described in [1], consisting of a CBI analysis of MCMC samples from a mixture-based random partition model fit to 2d simulated data. IN particular, we will simulate a dataset with ambiguous clustering structure, sample the posterior using a Pitman-Yor Process Mixture Model, and use `cbi_partitions` to quantify uncertainty and detect multimodality.
+This tutorial provides a step-by-step reproduction of the experiment described in [1], consisting of a CBI analysis of MCMC samples from a mixture-based random partition model fit to 2d simulated data. In particular, we will simulate a dataset with ambiguous clustering structure, sample partitions from a Pitman-Yor (PY) Gaussian mixture posterior, and use `cbi_partitions` to quantify uncertainty and detect posterior multimodality.
 
 
-### 1. Data Simulation (Gaussian Mixture)
-We import all necessary packages and generate a dataset of $N=100$ points from a mixture of 3 Gaussian components. The means and covariance is set to create overlap between the two leftmost-clusters, which will induce posterior uncertainty. The plot we make, showing the original data-generating clustering structure, illustrates this point.
+### 1. Data Simulation
+We generate a dataset of $N=100$ points from a mixture of 3 Gaussian components. The component-specific means and covariances are set to create overlap between the two leftmost-clusters, which will induce posterior uncertainty. The plot below, showing the original data-generating clustering structure, illustrates this point.
 
 ```python
 import numpy as np
@@ -64,12 +64,12 @@ plt.show()
 <br>
 
 ### 2. MCMC Sampling
-We fit a $PY(0.03, 0.01)$ location-scale Gaussian mixture model. Note that the MCMC implementation we use is based on the `pyrichlet` library [2], which we import here and is easily installed using `pip`. This is just for illustration purposes, in general you can replace your partition-valued MCMC output and directly skip to the next CBI-specific steps.
+We fit a $PY(0.03, 0.01)$ mean-covariance Gaussian mixture model. Note that the MCMC implementation we use is based on the `pyrichlet` library [2], which we import here and is easily installed using `pip`. This is just for illustration purposes: in general you can replace your partition-valued MCMC output and directly skip to the next CBI-specific steps.
 
 ```python
 from pyrichlet import mixture_models 
 
-# --- MCMC Parameters ---
+# MCMC parameters
 mcmc_config = {
     'n_final_samples': 6000,
     'burn_in': 1000,
@@ -82,7 +82,7 @@ print("--- Running Pyrichlet MCMC ---")
 total_iter = mcmc_config['burn_in'] + (mcmc_config['n_final_samples'] * mcmc_config['thinning'])
 dim = config['dim']
 
-# Initialize Sampler
+# Initialize sampler
 mm = mixture_models.PitmanYorMixture(
     alpha=mcmc_config['alpha'], 
     pyd=mcmc_config['py_sigma'],
@@ -96,10 +96,10 @@ mm = mixture_models.PitmanYorMixture(
     subsample_steps=mcmc_config['thinning']
 )
 
-# Run Sampler
+# Run sampler
 mm.fit_gibbs(y=X, show_progress=True)
 
-# Extract Partitions
+# Extract partitions
 mcmc_partitions = [samp['d'] for samp in mm.sim_params]
 partitions = np.array(mcmc_partitions, dtype=np.int64)
 ```
@@ -126,12 +126,17 @@ plt.show()
 
 <br>
 
-### 3. Conformal Model Initialization
-We split the MCMC samples into a **Training Set** (5000 partitions) to estimate the partition density and a **Calibration Set** (1000 partitions) to compute non-conformity scores. We use the **PartitionKDE** model with the Variation of Information (VI) metric.
+### 3. CBI - Initialization
+
+To begin, we import `PartitionKDE` and `PartitionBall` from the `cbi_partitions` library.
 
 ```python
 from cbi_partitions import PartitionKDE, PartitionBall
 ```
+
+We split the MCMC samples into a **Training Set** (5000 partitions) to estimate the partition density and a **Calibration Set** (1000 partitions) to compute non-conformity scores. We use the **PartitionKDE** model with the Variation of Information (VI) metric.
+
+
 
 ```python
 np.random.seed(42)
@@ -293,6 +298,7 @@ Between-modes partition p-value (KDE):         0.0819
 Far-from-modes partition p-value (Ball):       0.1399
 Between-modes partition p-value (Ball):        0.2587
 ```
+
 
 
 
