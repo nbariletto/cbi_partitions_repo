@@ -1,5 +1,5 @@
-title: CBI Partitions
-theme: jekyll-theme-slate
+title: A Tutorial on Conformalized Bayesian Inference with Random Partition Models
+theme: minimal
 markdown: kramdown
 kramdown:
   math_engine: nil
