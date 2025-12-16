@@ -1,8 +1,3 @@
----
-layout: page
-title: Conformalized Bayesian Inference for Random Partition Models
----
-
 `cbi_partitions` is a Python library for performing Conformalized Bayesian Inference (CBI, introduced by [1]) for clustering problems based on partition-valued MCMC output.
 
 Given MCMC samples and the Variation-of-Information (VI) metric between data partitions [2], the library implements:
@@ -400,6 +395,7 @@ Both partitions are excluded from the 90% VI-KDE credible set but are included i
 [5] Rodriguez, A., & Laio, A. (2014). Clustering by fast search and find of density peaks. Science, 344(6191), 1492-1496.
 
 [6] Wade, S., & Ghahramani, Z. (2018). Bayesian cluster analysis: Point estimation and credible balls (with discussion). Bayesian Analysis, 13(2), 559–626.
+
 
 
 
