@@ -381,7 +381,9 @@ Far-from-modes partition p-value (Ball):       0.1399
 Between-modes partition p-value (Ball):        0.2587
 ```
 
-Both partitions are excluded from the 90% VI-KDE credible set but are included in the 90% VI-ball credible set. This demonstrates that the VI-KDE procedure naturally adapts to the multimodality of the posterior by leveraging a pseudo-density estimate, producing a credible set that "skips" low-density regions both between modes and far from them. In contrast, the VI ball with the same coverage is insensitive to the geometry of the posterior support: its radius expands uniformly in all directions from the point estimate until the target coverage is reached, ultimately including low-density, unrepresentative partitions like those we tested.
+Both partitions are excluded from the 90% VI-KDE credible set but are included in the 90% VI-ball credible set. This shows that
+- the VI-KDE procedure naturally adapts to the multimodality of the posterior by leveraging a pseudo-density estimate, producing a credible set that "skips" low-density regions both between modes and far from them;
+- the VI ball with the same coverage, instead, is insensitive to the geometry of the posterior support: its radius expands uniformly in all directions from the point estimate until the target coverage is reached, ultimately including low-density, unrepresentative partitions like those we tested.
 
 
 
