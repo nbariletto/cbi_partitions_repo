@@ -1,5 +1,5 @@
 title: A Tutorial on Conformalized Bayesian Inference with Random Partition Models
-theme: jekyll-theme-architect
+theme: jekyll-theme-minimal
 markdown: kramdown
 kramdown:
   math_engine: nil
