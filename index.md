@@ -3,7 +3,7 @@ layout: default
 title: CBI for RPMs
 ---
 
-`cbi_partitions` is a Python library for performing Conformalized Bayesian Inference (CBI, introduced by [1]) for clustering problems based on partition-valued MCMC output.
+`cbi_partitions` is a Python library to implement Conformalized Bayesian Inference (CBI, introduced by [1]) for clustering problems based on partition-valued MCMC output.
 
 Given MCMC samples and the Variation-of-Information (VI) metric between data partitions [2], the library implements:
 - a point estimate of the data clustering;
@@ -25,7 +25,7 @@ pip install https://github.com/nbariletto/cbi_partitions/archive/main.zip
 
 <br>
 
-## Tutorial: Analyzing a multimodal posterior distribution over partitions
+## A step-by-step tutorial with simulated data
 
 This tutorial provides a step-by-step reproduction of the experiment described in [1], which consists of a CBI analysis of MCMC samples from a mixture-based random partition model fitted to two-dimensional simulated data. Specifically, we simulate a dataset with an ambiguous clustering structure, draw partitions from the posterior of a Pitman–Yor (PY) Gaussian mixture model, and use `cbi_partitions` to quantify uncertainty and detect posterior multimodality.
 
@@ -200,7 +200,7 @@ Additionally, for custom uses such as plotting, the attributes `kde.calib_scores
 
 <br>
 
-### 3. CBI – Pseudo-MAP Point Estimate
+### 3. CBI – Pseudo-MAP point estimate
 
 Using the calibration scores computed above, we obtain the point estimate as the calibration partition with the highest VI-KDE score. This is achieved using the `.get_point_estimate()` method and can be interpreted as a pseudo Maximum-A-Posteriori (MAP) estimate, since the VI-KDE score can be viewed as a proxy for posterior density.
 
@@ -222,7 +222,7 @@ Point estimation resolves posterior uncertainty by selecting a two-cluster parti
 
 <br>
 
-### 4. CBI - Multimodality Analysis
+### 4. CBI - Multimodality analysis
 Following [1], we now analyze posterior multimodality using ideas from density-based clustering [5], with the VI-KDE score serving as a proxy for posterior density. Specifically, the calibration step above has already computed (a) the VI-KDE score $s(\theta)$ and (b) the separation parameter $\delta(\theta)$ for each calibration sample $\theta$. Recall from [1] that $\delta(\theta)$ measures the distance between $\theta$ and the closest calibration partition with a higher VI-KDE score. Consequently, we can identify posterior modes by examining the decision graph plotted below and selecting partitions that exhibit unusually large values of both $s(\theta)$ (indicating they lie in high-density regions) and $\delta(\theta)$ (indicating they are well separated from other high-density samples).
 
 
@@ -256,7 +256,7 @@ This shows that both the KDE point estimate (by construction of the density-base
 
 <br>
 
-### 5. CBI – Hypothesis Testing
+### 5. CBI – Hypothesis testing
 
 Point estimation and multimodality analysis provide a global description of the posterior. We now test whether a specific, user-specified partition $\theta$ is supported as typical under the posterior. Following [1], this is done by computing the conformal $p$-value:
 
@@ -315,7 +315,7 @@ As expected from our previous multimodality analysis, both the true partition an
 
 <br>
 
-### 6. Comparison with VI Balls Around a Point Estimate
+### 6. Comparison with VI balls around a point estimate
 
 Finally, we compare the results of the VI-KDE score procedure with the VI ball centered around our point estimate (which essentially coincides with the "collapsed" true partition). The VI ball with posterior coverage $1-\alpha$, originally proposed by [6], is obtained within the CBI framework using the negative VI distance $\tilde s(\theta)$ from the point estimate as a score, and is implemented via the `PartitionBall` class.
 
