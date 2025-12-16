@@ -138,7 +138,7 @@ where $\theta_t, t=1,\ldots,T$ are training partition samples, $\gamma>0$ is a t
 
 $$\tilde s(\theta) = - D(\theta, \hat \theta),$$
 
-were $\hat theta$ is a point estimator of the data clustering. As [1] show, this choice of score yields a conformal set coinciding with a VI-ball centered at $\hat \theta$, whose size we will compare to the VI-KDE score set.
+were $\hat \theta$ is a point estimator of the data clustering. As [1] show, this choice of score yields a conformal set coinciding with a VI-ball centered at $\hat \theta$, whose size we will compare to the VI-KDE score set.
 
 Therefore, we now split the MCMC samples into a *training set* (5000 partitions) to estimate the score and a *calibration set* (1000 partitions) on which to evaluate $s(\theta)$.
 
@@ -323,6 +323,7 @@ Between-modes partition p-value (KDE):         0.0819
 Far-from-modes partition p-value (Ball):       0.1399
 Between-modes partition p-value (Ball):        0.2587
 ```
+
 
 
 
