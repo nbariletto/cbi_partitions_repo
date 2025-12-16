@@ -1,5 +1,5 @@
 title: CBI Partitions
-theme: jekyll-theme-cayman
+theme: jekyll-theme-slate
 markdown: kramdown
 kramdown:
   math_engine: nil
