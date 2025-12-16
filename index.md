@@ -5,9 +5,9 @@ title: CBI for RPMs
 
 `cbi_partitions` is a Python library to implement Conformalized Bayesian Inference (CBI, introduced by [1]) for clustering problems based on partition-valued MCMC output.
 
-Given MCMC samples and the Variation-of-Information (VI) metric between data partitions [2], the library implements:
+Given MCMC samples and a notion of distance between data partitions, the library implements:
 - a point estimate of the data clustering;
-- a credible set of partitions with guaranteed posterior coverage constructed using conformal prediction principles [3], together with a normalized measure of posterior typicality for any given partition (interpretable as a $p$-value and suitable for formal hypothesis testing);
+- a credible set of partitions with guaranteed posterior coverage constructed using conformal prediction principles, together with a normalized measure of posterior typicality for any given partition (interpretable as a $p$-value and suitable for formal hypothesis testing);
 - a density-based clustering approach to explore and summarize the multimodal structure of the posterior distribution over the space of partitions.
 
 
@@ -69,7 +69,7 @@ plt.show()
   <img src="images/true_partition.png" alt="Ground Truth">
 </p>
 
-We now fit a $PY(0.03, 0.01)$ mean–covariance Gaussian mixture model. The MCMC implementation used here is based on the `pyrichlet` library [4], which we import below and which can be easily installed via `pip`. This choice is purely illustrative: in practice, any partition-valued MCMC output can be used, and one may directly skip to the subsequent CBI-specific steps.
+We now fit a $PY(0.03, 0.01)$ mean–covariance Gaussian mixture model. The MCMC implementation used here is based on the `pyrichlet` library [2], which we import below and which can be easily installed via `pip`. This choice is purely illustrative: in practice, any partition-valued MCMC output can be used, and one may directly skip to the subsequent CBI-specific steps.
 
 ```python
 from pyrichlet import mixture_models 
@@ -149,7 +149,7 @@ $$
 s(\theta) = \frac{1}{T}\sum_{t=1}^T e^{-\gamma \cdot \mathcal D_{VI}(\theta,\theta_t)},
 $$
 
-where $\theta_t$, $t=1,\ldots,T$, are training partition samples, $\gamma > 0$ is a tuning parameter, and $\mathcal D_{VI}$ denotes the VI distance between partitions. 
+where $\theta_t$, $t=1,\ldots,T$, are training partition samples, $\gamma > 0$ is a tuning parameter, and $\mathcal D_{VI}$ denotes the Variation-of-Information distance between partitions [3]. 
 
 The `PartitionBall` method, instead, allows us to compute an alternative score:
 
@@ -223,7 +223,7 @@ Point estimation resolves posterior uncertainty by selecting a two-cluster parti
 <br>
 
 ### 4. CBI - Multimodality analysis
-Following [1], we now analyze posterior multimodality using ideas from density-based clustering [5], with the VI-KDE score serving as a proxy for posterior density. Specifically, the calibration step above has already computed (a) the VI-KDE score $s(\theta)$ and (b) the separation parameter $\delta(\theta)$ for each calibration sample $\theta$. Recall from [1] that $\delta(\theta)$ measures the distance between $\theta$ and the closest calibration partition with a higher VI-KDE score. Consequently, we can identify posterior modes by examining the decision graph plotted below and selecting partitions that exhibit unusually large values of both $s(\theta)$ (indicating they lie in high-density regions) and $\delta(\theta)$ (indicating they are well separated from other high-density samples).
+Following [1], we now analyze posterior multimodality using ideas from density-based clustering [4], with the VI-KDE score serving as a proxy for posterior density. Specifically, the calibration step above has already computed (a) the VI-KDE score $s(\theta)$ and (b) the separation parameter $\delta(\theta)$ for each calibration sample $\theta$. Recall from [1] that $\delta(\theta)$ measures the distance between $\theta$ and the closest calibration partition with a higher VI-KDE score. Consequently, we can identify posterior modes by examining the decision graph plotted below and selecting partitions that exhibit unusually large values of both $s(\theta)$ (indicating they lie in high-density regions) and $\delta(\theta)$ (indicating they are well separated from other high-density samples).
 
 
 ```python
@@ -258,13 +258,13 @@ This shows that both the KDE point estimate (by construction of the density-base
 
 ### 5. CBI – Hypothesis testing
 
-Point estimation and multimodality analysis provide a global description of the posterior. We now test whether a specific, user-specified partition $\theta$ is supported as typical under the posterior. Following [1], this is done by computing the conformal $p$-value:
+Point estimation and multimodality analysis provide a global description of the posterior. We now test whether a specific, user-specified partition $\theta$ is supported as typical under the posterior. Following [1], this is done by computing the conformal $p$-value
 
 $$
 p(\theta) = \frac{1 + \text{number of calibration samples with } s(\cdot)\leq s(\theta)}{1 + \text{number of calibration samples}}.
 $$
 
-$p(\theta)$ can be formally interpreted as a $p$-value under the null hypothesis that the calibration samples and $\theta$ are jointly i.i.d. from the posterior, or more generally as a measure of posterior typicality: the higher its value, the better $\theta$ ranks in terms of VI-KDE score among the calibration samples. Importantly, the set of partitions
+$p(\theta)$ can be formally interpreted as a $p$-value under the null hypothesis that the calibration samples and $\theta$ are jointly iid from the posterior [5], or more generally as a measure of posterior typicality: the higher its value, the better $\theta$ ranks in terms of VI-KDE score among the calibration samples. Importantly, the set of partitions
 
 $$
 \theta \quad \text{s.t.} \quad p(\theta) \geq \alpha
@@ -391,13 +391,13 @@ Both partitions are excluded from the 90% VI-KDE credible set but are included i
 
 [1] Bariletto, N., Ho, N., & Rinaldo, A. (2025). Conformalized Bayesian Inference, with Applications to Random Partition Models. arXiv preprint arXiv:2511.05746.
 
-[2] Meilă, M. (2007). Comparing clusterings—an information based distance. Journal of Multivariate Analysis, 98(5), 873-895.
+[2] Selva, F., Fuentes-García, R., & Gil-Leyva, M. F. (2025). pyrichlet: A Python Package for Density Estimation and Clustering Using Gaussian Mixture Models. Journal of Statistical Software, 112, 1-39.
 
-[3] Vovk, V., Gammerman, A., & Shafer, G. (2005). Algorithmic learning in a random world. Boston, MA: Springer US.
+[3] Meilă, M. (2007). Comparing clusterings—an information based distance. Journal of Multivariate Analysis, 98(5), 873-895.
 
-[4] Selva, F., Fuentes-García, R., & Gil-Leyva, M. F. (2025). pyrichlet: A Python Package for Density Estimation and Clustering Using Gaussian Mixture Models. Journal of Statistical Software, 112, 1-39.
+[4] Rodriguez, A., & Laio, A. (2014). Clustering by fast search and find of density peaks. Science, 344(6191), 1492-1496.
 
-[5] Rodriguez, A., & Laio, A. (2014). Clustering by fast search and find of density peaks. Science, 344(6191), 1492-1496.
+[5] Vovk, V., Gammerman, A., & Shafer, G. (2005). Algorithmic learning in a random world. Boston, MA: Springer US.
 
 [6] Wade, S., & Ghahramani, Z. (2018). Bayesian cluster analysis: Point estimation and credible balls (with discussion). Bayesian Analysis, 13(2), 559–626.
 
