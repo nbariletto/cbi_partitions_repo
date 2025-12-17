@@ -28,7 +28,7 @@ pip install https://github.com/nbariletto/cbi_partitions/archive/main.zip
 
 ## A step-by-step tutorial with simulated data
 
-This tutorial provides a step-by-step reproduction of the experiment described in [1], which consists of a CBI analysis of MCMC samples from a mixture-based random partition model fitted to two-dimensional simulated data. Specifically, we simulate a dataset with an ambiguous clustering structure, draw partitions from the posterior of a Pitman–Yor (PY) Gaussian mixture model, and use `cbi_partitions` to quantify uncertainty and detect posterior multimodality.
+This tutorial provides a step-by-step illustration of CBI applied to MCMC samples from a mixture-based random partition model fitted to two-dimensional simulated data. Specifically, we simulate a dataset with an ambiguous clustering structure, draw partitions from the posterior of a Pitman–Yor (PY) Gaussian mixture model, and use `cbi_partitions` to quantify uncertainty and detect posterior multimodality.
 
 ### 1. Data simulation and MCMC
 We generate a dataset of $n = 100$ observations from a mixture of three Gaussian components. The component-specific means and covariance matrices are chosen to induce overlap between the two leftmost clusters, thereby generating posterior uncertainty. The plot below shows the true data-generating clustering structure and illustrates this ambiguity.
