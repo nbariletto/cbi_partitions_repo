@@ -169,9 +169,9 @@ def _pvals(scores, calib_scores):
     return out
 
 
-# ==============================================
-# 2. KDE DENSITY-BASED CONFORMAL MODEL
-# ==============================================
+# =======================
+# 2. KDE CBI PIPELINE
+# =======================
 
 class PartitionKDE:
     """Metric-KDE for CBI."""
@@ -330,9 +330,10 @@ class PartitionKDE:
         return np.array([], dtype=np.int64)
 
 
-# ==============================================
-# 3. PartitionBall DISTANCE-BASED MODEL
-# ==============================================
+# ===================================
+# 3. DISTANCE-BASED CBI PIPELINE 
+# ===================================
+
 class PartitionBall:
     """CBI instantiation of metric ball credible sets."""
     def __init__(self, point_estimate_partition, metric='vi', remap_labels=True):
@@ -372,6 +373,7 @@ class PartitionBall:
         # p-value = Fraction of scores >= new_score (worse or equal)
         p_val = (np.sum(self.calib_scores_ >= new_score) + 1) / (self.n_calib_ + 1)
         return p_val
+
 
 
 
