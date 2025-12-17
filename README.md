@@ -56,7 +56,7 @@ $$
 
 The score acts as:
 - a proxy for posterior density used for point estimation and posterior multimodality analysis;
-- a conformity score to construct a conformal credible set with prescribed posterior coverage;
+- a conformity score to construct a conformal credible set with prescribed posterior coverage.
 
 ---
 
@@ -99,10 +99,10 @@ Computes the KDE score $s(\cdot)$ for one or more partitions.
 
 
 - **Parameters**
-  - `partitions`: a single partition (array of length `n`) or an array of partitions of shape `(m, n)`
+  - `partitions`: a single partition (array of length `n`) or an array of partitions of shape `(m, n)`.
 
 - **Returns**
-  - A one-dimensional array of length `m` containing the KDE score of each partition
+  - A one-dimensional array of length `m` containing the KDE score of each partition.
 
 ---
 
@@ -117,17 +117,17 @@ Computes all quantities needed for subsequent conformal credible set constructio
 This method must be called before computing p-values or performing multimodality analysis.
 
 - **Parameters**
-  - `calib_partitions`: array of calibration partitions of shape `(m, n)`
+  - `calib_partitions`: array of calibration partitions of shape `(m, n)`.
 
 - **Side effects**
   
   After calling this method, the following attributes are available:
 
-  - `calib_partitions_`: the calibration partitions
-  - `calib_scores_`: KDE scores for all calibration partitions
-  - `calib_dist_matrix_`: pairwise distance matrix between calibration partitions
-  - `dpc_delta_`: for each calibration partition, the distance to the closest calibration partition with a higher KDE score. By default, if a partition appears more than once in the calibration set, all instances but one will receive a delta value of zero
-  - `dpc_gamma_`: product of the KDE score and the corresponding separation value, used to rank candidate modes
+  - `calib_partitions_`: the calibration partitions;
+  - `calib_scores_`: KDE scores for all calibration partitions;
+  - `calib_dist_matrix_`: pairwise distance matrix between calibration partitions;
+  - `dpc_delta_`: for each calibration partition, the distance to the closest calibration partition with a higher KDE score. By default, if a partition appears more than once in the calibration set, all instances but one will receive a delta value of zero;
+  - `dpc_gamma_`: pointwise product of the KDE scores `calib_scores_` and separation values `dpc_delta_`, used internally to rank candidate modes.
 
 ---
 
@@ -144,11 +144,11 @@ Given a partition $\theta$, its KDE score is first computed. The returned value 
 The method also supports batch evaluation: if multiple partitions are provided, $p$-values are computed independently for each of them in a vectorized and parallelized manner.
 
 - **Parameters**
-  - `partitions`: either a single partition (array of length `n`) or an array of partitions of shape `(m, n)`
+  - `partitions`: either a single partition (array of length `n`) or an array of partitions of shape `(m, n)`.
 
 - **Returns**
-  - If a single partition is provided, returns a scalar $p$-value in $(0,1]$
-  - If multiple partitions are provided, returns an array of $p$-values of length `m`
+  - If a single partition is provided, returns a scalar $p$-value in $(0,1]$;
+  - If multiple partitions are provided, returns an array of $p$-values of length `m`.
 
 ---
 
@@ -161,7 +161,7 @@ get_point_estimate(source='calibration')
 Returns the partition with the highest KDE score within the selected dataset. This can be interpreted as a pseudo–maximum-a-posteriori (pseudo-MAP) estimate.
 
 - **Parameters**
-  - `source`: `'train'` or `'calibration'`, indicating in which set of partitions is searched
+  - `source`: `'train'` or `'calibration'`, indicating in which set of partitions is searched.
 
 - **Returns**
   - A single partition (array of length `n`). If multiple partitions attain the maximum KDE score, one of them is returned. In this case, the choice corresponds to the first maximizer encountered and is deterministic given the ordering of the partitions.
@@ -190,7 +190,7 @@ plot_dpc_decision_graph(save_path=None)
 Plots the decision graph displaying KDE score ($s$) versus minimum distance to higher-density calibration partitions ($\delta$).
 
 - **Parameters**
-  - `save_path`: optional path where the figure is saved as .png
+  - `save_path`: optional path where the figure is saved as .png.
 
 ---
 
@@ -208,7 +208,7 @@ Identifies calibration partitions corresponding to well-separated, high-density 
   - `delta_thresh`: minimum separation threshold
 
 - **Returns**
-  - An array of indices of calibration partitions satisfying both thresholds, ordered by the product of KDE score and separation
+  - An array of indices of calibration partitions satisfying both thresholds, ordered by the product of KDE score and separation.
 
 
 ## PartitionBall
@@ -232,9 +232,9 @@ PartitionBall(
 #### Parameters
 
 - **`point_estimate_partition`**: array-like of shape `n`  
-  A partition at which to center the credible set (usually estimated in advance).
+  A partition at which to center the credible set (usually estimated in advance);
 - **`metric`**: `'vi'` or `'binder'` (default `'vi'`)  
-  Distance used internally by the kernel.
+  Distance used internally by the kernel;
 - **`remap_labels`**: bool (default `True`)  
   Whether cluster labels are remapped internally.
 
@@ -257,10 +257,10 @@ $$
 $$
 
 - **Parameters**
-  - `partitions`: a single partition (array of length `n`) or an array of partitions of shape `(m, n)`
+  - `partitions`: a single partition (array of length `n`) or an array of partitions of shape `(m, n)`.
 
 - **Returns**
-  - A one-dimensional array of length `m` containing the KDE score of each partition
+  - A one-dimensional array of length `m` containing the KDE score of each partition.
 
 
 ---
@@ -276,13 +276,13 @@ Computes the ball scores for all partitions in `calib_partitions`.
 This method must be called before computing p-values.
 
 - **Parameters**
-  - `calib_partitions`: array of calibration partitions of shape `(m, n)`
+  - `calib_partitions`: array of calibration partitions of shape `(m, n)`.
 
 - **Side effects**
   After calling this method, the following attributes are available:
 
-  - `calib_partitions_`: the calibration partitions
-  - `calib_scores_`: ball scores for all calibration partitions
+  - `calib_partitions_`: the calibration partitions;
+  - `calib_scores_`: ball scores for all calibration partitions.
 
 ---
 
@@ -299,11 +299,11 @@ Given a partition $\theta$, its ball score $\tilde s(\theta)$ is first computed.
 The method also supports batch evaluation: if multiple partitions are provided, $p$-values are computed independently for each of them in a vectorized and parallelized manner.
 
 - **Parameters**
-  - `partitions`: either a single partition (array of length `n`) or an array of partitions of shape `(m, n)`
+  - `partitions`: either a single partition (array of length `n`) or an array of partitions of shape `(m, n)`.
 
 - **Returns**
-  - If a single partition is provided, returns a scalar $p$-value in $(0,1]$
-  - If multiple partitions are provided, returns an array of $p$-values of length `m`
+  - If a single partition is provided, returns a scalar $p$-value in $(0,1]$;
+  - If multiple partitions are provided, returns an array of $p$-values of length `m`.
 ---
 
 ## References
@@ -319,6 +319,7 @@ The method also supports batch evaluation: if multiple partitions are provided, 
 [5] Rodriguez, A., & Laio, A. (2014). Clustering by fast search and find of density peaks. Science, 344(6191), 1492-1496.
 
 [6] Wade, S., & Ghahramani, Z. (2018). Bayesian cluster analysis: Point estimation and credible balls (with discussion). Bayesian Analysis, 13(2), 559–626.
+
 
 
 
