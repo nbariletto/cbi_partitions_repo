@@ -128,7 +128,6 @@ def _binder_dist(p1, p2, remap=False):
     total_pairs = (n * (n - 1)) / 2.0
     return 0.0 if total_pairs == 0 else 1.0 - (a + b) / total_pairs
 
-# Wrapper to handle Numba function pointers correctly
 @njit(cache=True)
 def _calculate_distance(p1, p2, metric_code, remap):
     """
@@ -152,6 +151,23 @@ def _compute_pairwise_matrix(partitions, metric_code, remap):
             matrix[i, j] = d
             matrix[j, i] = d
     return matrix
+
+@njit(parallel=True, cache=True)
+def _pvals(scores, calib_scores):
+    n = scores.shape[0]
+    m = calib_scores.shape[0]
+    out = np.empty(n, dtype=np.float64)
+
+    for i in prange(n):
+        c = 0
+        s = scores[i]
+        for j in range(m):
+            if calib_scores[j] <= s:
+                c += 1
+        out[i] = (c + 1) / (m + 1)
+
+    return out
+
 
 # ==============================================
 # 2. KDE DENSITY-BASED CONFORMAL MODEL
@@ -219,14 +235,20 @@ class PartitionKDE:
         # Compute DPC variables
         self._compute_dpc_vars()
 
-    def compute_p_value(self, partition):
-        """Computes the conformity p-value for a new partition."""
+    def compute_p_value(self, partitions):
+        """Computes the conformal p-value for one or more partitions."""
         if not hasattr(self, 'calib_scores_'):
             raise RuntimeError("Must call .calibrate() before .compute_p_value()")
-        new_score = self.score(partition)[0]
-        # p-value = Fraction of calibration scores <= new_score
-        p_val = (np.sum(self.calib_scores_ <= new_score) + 1) / (self.n_calib_ + 1)
-        return p_val
+    
+        p = np.array(partitions, dtype=np.int64)
+    
+        if p.ndim == 1:
+            s = self.score(p)[0]
+            return (np.sum(self.calib_scores_ <= s) + 1) / (self.n_calib_ + 1)
+    
+        scores = self.score(p)
+        return self._pvals(scores, self.calib_scores_)
+
 
     def get_point_estimate(self, source='calibration'):
         """
@@ -350,6 +372,7 @@ class PartitionBall:
         # p-value = Fraction of scores >= new_score (worse or equal)
         p_val = (np.sum(self.calib_scores_ >= new_score) + 1) / (self.n_calib_ + 1)
         return p_val
+
 
 
 
