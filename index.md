@@ -236,7 +236,7 @@ plt.show()
   <img src="images/dpc_decision_graph.png" alt="DPC decision graph">
 </p>
 
-Two distinct modes are clearly identified, corresponding to the points in the north-east corner of the decision graph. Below, we extract the corresponding partitions using visually selected $s$ and $\delta$ thresholds, then display these partitions.
+**Two distinct** modes are clearly identified, corresponding to the points in the north-east corner of the decision graph. Below, we extract the corresponding partitions using visually selected $s$ and $\delta$ thresholds, then display these partitions.
 
 
 
