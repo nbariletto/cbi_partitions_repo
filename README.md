@@ -137,7 +137,7 @@ compute_p_value(partitions)
 
 Computes the conformal $p$-value for one or more partitions.
 
-Given a partition $\theta$, its KDE score is first computed. The returned value $p(\theta)$ is then obtained as the fraction of calibration partitions whose KDE score is less than or equal to that of $\theta$, with a finite-sample correction. This quantity can be interpreted as a conformal $p$-value under the assumption that the calibration samples and the tested partition are jointly iid from the posterior distribution. Moreover, the set of partitions $\theta$ with $p(\theta)\geq \alpha$ is a set with posterior coverage at least $1-\alpha$ [4].
+Given a partition $\theta$, its KDE score is first computed. The returned value $p(\theta)$ is then obtained as the fraction of calibration partitions whose KDE score is less than or equal to that of $\theta$, with a finite-sample correction. This quantity can be interpreted as a conformal $p$-value under the null hypothesis that the calibration samples and the tested partition are jointly iid from the posterior distribution. Moreover, the set of partitions $\theta$ with $p(\theta)\geq \alpha$ is a set with posterior coverage at least $1-\alpha$ [4].
 
 The method also supports batch evaluation: if multiple partitions are provided, $p$-values are computed independently for each of them in a vectorized and parallelized manner.
 
@@ -292,7 +292,7 @@ compute_p_value(partitions)
 
 Computes the conformal $p$-value for one or more partitions.
 
-Given a partition $\theta$, its ball score $\tilde s(\theta)$ is first computed. The returned value $\tilde p(\theta)$ is then obtained as the fraction of calibration partitions whose ball score is less than or equal $\tilde s(\theta)$, with a finite-sample correction. This quantity can be interpreted as a conformal $p$-value under the assumption that the calibration samples and the tested partition are jointly iid from the posterior distribution. Moreover, the set of partitions $\theta$ with $\tilde p(\theta)\geq \alpha$ is a ball (in the chosen metric) around `point_estimate_partition` with posterior coverage at least $1-\alpha$ [4].
+Given a partition $\theta$, its ball score $\tilde s(\theta)$ is first computed. The returned value $\tilde p(\theta)$ is then obtained as the fraction of calibration partitions whose ball score is less than or equal $\tilde s(\theta)$, with a finite-sample correction. This quantity can be interpreted as a conformal $p$-value under the null hypothesis that the calibration samples and the tested partition are jointly iid from the posterior distribution. Moreover, the set of partitions $\theta$ with $\tilde p(\theta)\geq \alpha$ is a ball (in the chosen metric) around `point_estimate_partition` with posterior coverage at least $1-\alpha$ [4].
 
 The method also supports batch evaluation: if multiple partitions are provided, $p$-values are computed independently for each of them in a vectorized and parallelized manner.
 
@@ -317,6 +317,7 @@ The method also supports batch evaluation: if multiple partitions are provided, 
 [5] Rodriguez, A., & Laio, A. (2014). Clustering by fast search and find of density peaks. Science, 344(6191), 1492-1496.
 
 [6] Wade, S., & Ghahramani, Z. (2018). Bayesian cluster analysis: Point estimation and credible balls (with discussion). Bayesian Analysis, 13(2), 559–626.
+
 
 
 
