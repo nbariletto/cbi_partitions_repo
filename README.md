@@ -166,9 +166,9 @@ Returns the partition with the highest KDE score within the selected dataset. Th
 
 ---
 
-## Posterior multimodality and density peaks
+## Posterior multimodality via Density-Peak Clustering
 
-During calibration, the library also computes quantities used to explore posterior multimodality using density-based clustering ideas, and in particular Density-Peak Clustering [4].
+During calibration, the library also computes quantities used to explore posterior multimodality using density-based clustering ideas, and in particular Density-Peak Clustering (DPC) [4].
 
 For each calibration partition $\theta$, the following are computed internally:
 
@@ -317,6 +317,7 @@ The method also supports batch evaluation: if multiple partitions are provided, 
 [5] Rodriguez, A., & Laio, A. (2014). Clustering by fast search and find of density peaks. Science, 344(6191), 1492-1496.
 
 [6] Wade, S., & Ghahramani, Z. (2018). Bayesian cluster analysis: Point estimation and credible balls (with discussion). Bayesian Analysis, 13(2), 559–626.
+
 
 
 
