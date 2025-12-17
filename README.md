@@ -95,13 +95,8 @@ PartitionKDE(
 score(partitions)
 ```
 
-Computes the KDE score for one or more partitions.
+Computes the KDE score $s(\cdot)$ for one or more partitions.
 
-Given a partition $\theta$, training partitions $theta_t$, $t=1,\ldots,T$, a kernel width parameter $\gamma>0$, and a distance $\mathcal D$, the score is computed as
-
-$$
-s(\theta) = \frac{1}{T}\sum_{t=1}^T e^{-\gamma \cdot \mathcal D(\theta,\theta_t)}.
-$$
 
 - **Parameters**
   - `partitions`: a single partition (array of length `n`) or an array of partitions of shape `(m, n)`
@@ -323,6 +318,7 @@ The method also supports batch evaluation: if multiple partitions are provided, 
 [5] Rodriguez, A., & Laio, A. (2014). Clustering by fast search and find of density peaks. Science, 344(6191), 1492-1496.
 
 [6] Wade, S., & Ghahramani, Z. (2018). Bayesian cluster analysis: Point estimation and credible balls (with discussion). Bayesian Analysis, 13(2), 559–626.
+
 
 
 
