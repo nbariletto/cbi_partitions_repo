@@ -27,7 +27,7 @@ The library consists of three main components:
 2. **`PartitionKDE`**, the standard KDE-based pipeline for CBI;
 3. **`PartitionBall`**, a distance-based CBI method yielding metric credible balls.
 
-Partitions are represented as integer-valued arrays of length `n`, where the `i`-th entry denotes the cluster label assigned to observation `i=1,\ldots,n`.
+Partitions are represented as integer-valued arrays of length $n$, where the $i$-th entry denotes the cluster label assigned to observation $i=1,\ldots,n$.
 
 ---
 
@@ -323,5 +323,6 @@ The method also supports batch evaluation: if multiple partitions are provided, 
 [5] Rodriguez, A., & Laio, A. (2014). Clustering by fast search and find of density peaks. Science, 344(6191), 1492-1496.
 
 [6] Wade, S., & Ghahramani, Z. (2018). Bayesian cluster analysis: Point estimation and credible balls (with discussion). Bayesian Analysis, 13(2), 559–626.
+
 
 
