@@ -253,7 +253,7 @@ plt.show()
   <img src="images/dpc_modes.png" alt="DPC modes">
 </p>
 
-This shows that both the KDE point estimate (by construction of the density-based clustering procedure) and a three-cluster partition, closely matching the data-generating clustering, are supported as modes of the posterior distribution.
+This shows that both the KDE point estimate and a three-cluster partition, closely matching the data-generating clustering, are supported as modes of the posterior distribution.
 
 <br>
 
