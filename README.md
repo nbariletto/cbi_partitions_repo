@@ -229,7 +229,7 @@ PartitionBall(
 
 #### Parameters
 
-- **`point_estimate_partition`**: array-like of shape `n`  
+- **`point_estimate_partition`**: array of length `n`
   A partition at which to center the credible set (usually estimated in advance);
 - **`metric`**: `'vi'` or `'binder'` (default `'vi'`)  
   Distance used internally by the kernel;
@@ -317,6 +317,7 @@ The method also supports batch evaluation: if multiple partitions are provided, 
 [5] Rodriguez, A., & Laio, A. (2014). Clustering by fast search and find of density peaks. Science, 344(6191), 1492-1496.
 
 [6] Wade, S., & Ghahramani, Z. (2018). Bayesian cluster analysis: Point estimation and credible balls (with discussion). Bayesian Analysis, 13(2), 559–626.
+
 
 
 
