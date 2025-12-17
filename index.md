@@ -259,7 +259,7 @@ This shows that both the KDE point estimate and a three-cluster partition, close
 
 ### 5. CBI – Hypothesis testing
 
-Point estimation and multimodality analysis provide a global description of the posterior. We now test whether a specific, user-specified partition $\theta$ is supported as typical under the posterior. Following [1], this is done by computing the conformal $p$-value
+Point estimation and multimodality analysis provide a global description of the posterior. We now test whether a particular, user-specified partition $\theta$ is supported as typical under the posterior. Following [1], this is done by computing the conformal $p$-value
 
 $$
 p(\theta) = \frac{1 + \text{number of calibration samples with } s(\cdot)\leq s(\theta)}{1 + \text{number of calibration samples}}.
