@@ -273,7 +273,7 @@ $$
 
 is guaranteed to have posterior coverage of at least $1-\alpha$ (see [1] for details).
 
-We test four specific clustering hypotheses at a significance level of $\alpha=0.1$, ensuring that the resulting set has at least 90% posterior coverage:
+We test four clustering hypotheses at a significance level of $\alpha=0.1$, ensuring that the resulting set has at least 90% posterior coverage:
 
 1. **The true partition**;  
 2. **The "collapsed" partition**, obtained by merging the two leftmost ground-truth clusters;  
