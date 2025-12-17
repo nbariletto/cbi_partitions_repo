@@ -1,10 +1,10 @@
 # cbi_partitions.py
 """
-Reusable library for partition analysis.
+Reusable library for Conformalized Bayesian Analysis (CBI) of posterior distributions over data partitions.
 Contains:
 1. Numba-jitted partition distance functions (VI, Binder).
-2. PartitionKDE: Density-based conformal model.
-3. PartitionBall: Distance-based conformal model.
+2. PartitionKDE: Standard pipeline for CBI.
+3. PartitionBall: CBI implementation of metric credible balls.
 """
 
 import numpy as np
@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 @njit(cache=True)
 def _remap_labels(p):
     """
-    Remaps arbitrary labels to 0..K-1 compact range efficiently.
+    Remaps arbitrary labels to 0..K-1 range efficiently.
     Useful if labels are large integers (e.g. 1000, 2000) which would
     cause memory issues in contingency tables.
     """
@@ -73,7 +73,7 @@ def _contingency_table(p1, p2):
 
 @njit(cache=True)
 def _vi_dist(p1, p2, remap=True):
-    """Computes the Variation of Information (VI) distance."""
+    """Computes the Variation-of-Information (VI) distance."""
     if remap:
         p1, _ = _remap_labels(p1)
         p2, _ = _remap_labels(p2)
@@ -103,7 +103,7 @@ def _vi_dist(p1, p2, remap=True):
 
 @njit(cache=True)
 def _binder_dist(p1, p2, remap=False):
-    """Computes the Binder distance (1 - Rand Index)."""
+    """Computes the Binder distance."""
     # Note: Binder technically doesn't need remapping for memory safety 
     # since it compares pairs, but we support the flag for consistency.
     if remap:
@@ -159,7 +159,7 @@ def _compute_pairwise_matrix(partitions, metric_code, remap):
 # ==============================================
 
 class PartitionKDE:
-    """Partition Kernel Density Estimation (KDE) for conformal inference."""
+    """Metric-KDE for CBI."""
     
     def __init__(self, train_partitions, metric='vi', gamma=0.5, subsample_size=None, remap_labels=True):
         if metric not in ['vi', 'binder']:
@@ -203,7 +203,7 @@ class PartitionKDE:
         return scores
 
     def score(self, partitions):
-        """Computes the density score for one or more partitions."""
+        """Computes the KDE score for one or more partitions."""
         partitions = np.array(partitions, dtype=np.int64)
         if partitions.ndim == 1: 
             partitions = partitions.reshape(1, -1)
@@ -221,7 +221,7 @@ class PartitionKDE:
         self._compute_dpc_vars()
 
     def compute_p_value(self, partition):
-        """Computes the conformity p-value (higher score = better) for a new partition."""
+        """Computes the conformity p-value for a new partition."""
         if not hasattr(self, 'calib_scores_'):
             raise RuntimeError("Must call .calibrate() before .compute_p_value()")
         new_score = self.score(partition)[0]
@@ -231,7 +231,7 @@ class PartitionKDE:
 
     def get_point_estimate(self, source='calibration'):
         """
-        Finds the partition with the highest density score.
+        Finds the partition with the highest KDE score.
         
         Parameters
         ----------
@@ -239,30 +239,23 @@ class PartitionKDE:
             Which dataset to select the point estimate from.
         """
         if source == 'train':
-            # Check if we already scored the training set
             if not hasattr(self, 'train_scores_'):
-                # Only compute if missing
                 self.train_scores_ = self.score(self.train_partitions_)
-            
             best_idx = np.argmax(self.train_scores_)
             return self.train_partitions_[best_idx]
 
         elif source == 'calibration':
-            # Check if calibration scores exist
             if not hasattr(self, 'calib_scores_'):
                 raise RuntimeError("Calibration scores not found. You must run .calibrate() first.")
-            
-            # FAST PATH: Use the already computed scores!
-            # No re-computation happens here.
             best_idx = np.argmax(self.calib_scores_)
             return self.calib_partitions_[best_idx]
         
         else:
             raise ValueError("source must be 'train' or 'calibration'")
 
-    def _compute_dpc_vars(self):
-        """Computes DPC variables (s and delta) using efficient JIT compilation."""
-        print("Computing DPC variables (s and delta)...")
+def _compute_dpc_vars(self):
+        """Computes DPC variables (s and delta, normalized) using efficient JIT compilation."""
+        print("Computing DPC variables...")
         
         # 1. Pairwise distances
         self.calib_dist_matrix_ = _compute_pairwise_matrix(
@@ -270,23 +263,24 @@ class PartitionKDE:
         )
         
         # 2. Raw density scores
-        self.dpc_raw_scores_ = self.calib_scores_
+        self.dpc_s_ = self.calib_scores_
         
         # 3. Delta (distance to nearest point with higher density)
         self.dpc_delta_ = np.zeros(self.n_calib_)
-        sorted_indices = np.argsort(self.dpc_raw_scores_)[::-1] 
-        max_dist = self.calib_dist_matrix_.max() if self.n_calib_ > 0 else 1.0
-        
+        sorted_indices = np.argsort(self.dpc_s_)[::-1] 
+                
         for i, idx_i in enumerate(sorted_indices):
             if i == 0:
-                self.dpc_delta_[idx_i] = max_dist
+                if self.n_calib_ > 0:
+                    self.dpc_delta_[idx_i] = self.calib_dist_matrix_[idx_i].max()
+                else:
+                    self.dpc_delta_[idx_i] = 1.0
                 continue
+            
             denser_indices = sorted_indices[:i]
             dists_to_denser = self.calib_dist_matrix_[idx_i, denser_indices]
             self.dpc_delta_[idx_i] = dists_to_denser.min()
             
-        # 4. s (normalized density)
-        self.dpc_s_ = (self.dpc_raw_scores_ - self.dpc_raw_scores_.min()) / (self.dpc_raw_scores_.max() - self.dpc_raw_scores_.min() + 1e-9)
         self.dpc_gamma_ = self.dpc_s_ * self.dpc_delta_
 
     def plot_dpc_decision_graph(self, save_path=None):
@@ -297,7 +291,7 @@ class PartitionKDE:
         plt.figure(figsize=(4, 3))
         plt.scatter(self.dpc_s_, self.dpc_delta_, alpha=0.6, c='blue', edgecolors='k')
         plt.xlabel(r'Density ($s$)')
-        plt.ylabel(r'Distance ($\delta$)')
+        plt.ylabel(r'Distance from higher density samples ($\delta$)')
         plt.grid(True, linestyle='--', alpha=0.7)
         if save_path:
             plt.savefig(save_path, bbox_inches='tight')
@@ -305,7 +299,7 @@ class PartitionKDE:
         plt.show()
 
     def get_dpc_modes(self, s_thresh, delta_thresh):
-        """Identifies modes based on s and delta thresholds."""
+        """Identifies mode indexes based on s and delta thresholds."""
         if not hasattr(self, 'dpc_s_'):
             raise RuntimeError("DPC variables not computed. Run .calibrate() first.")
             
@@ -322,6 +316,7 @@ class PartitionKDE:
 # 3. PartitionBall DISTANCE-BASED MODEL
 # ==============================================
 class PartitionBall:
+    """CBI instantiation of metric ball credible sets."""
     def __init__(self, point_estimate_partition, metric='vi', remap_labels=True):
         if metric not in ['vi', 'binder']: raise ValueError("Metric must be 'vi' or 'binder'")
         self.metric_ = metric
@@ -359,9 +354,3 @@ class PartitionBall:
         # p-value = Fraction of scores >= new_score (worse or equal)
         p_val = (np.sum(self.calib_scores_ >= new_score) + 1) / (self.n_calib_ + 1)
         return p_val
-
-    def get_point_estimate(self):
-
-        return self.point_estimate_
-
-
