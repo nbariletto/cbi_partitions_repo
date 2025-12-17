@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 def _remap_labels(p):
     """
     Remaps arbitrary labels to 0..K-1 range efficiently.
-    Useful if labels are large integers (e.g. 1000, 2000) which would
+    Useful if labels are large integers which would
     cause memory issues in contingency tables.
     """
     n = p.shape[0]
@@ -351,6 +351,7 @@ class PartitionBall:
         # p-value = Fraction of scores >= new_score (worse or equal)
         p_val = (np.sum(self.calib_scores_ >= new_score) + 1) / (self.n_calib_ + 1)
         return p_val
+
 
 
 
