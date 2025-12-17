@@ -100,7 +100,7 @@ Computes the KDE score for one or more partitions.
 Given a partition $\theta$, training partitions $theta_t$, $t=1,\ldots,T$, a kernel width parameter $\gamma>0$, and a distance $\mathcal D$, the score is computed as
 
 $$
-s(\theta) = \frac{1}{T}\sum_{t=1}^T e^{-\gamma \cdot \mathcal D(\theta,\theta_t)},
+s(\theta) = \frac{1}{T}\sum_{t=1}^T e^{-\gamma \cdot \mathcal D(\theta,\theta_t)}.
 $$
 
 - **Parameters**
@@ -108,7 +108,6 @@ $$
 
 - **Returns**
   - A one-dimensional array of length `m` containing the KDE score of each partition
-
 
 ---
 
@@ -144,7 +143,7 @@ compute_p_value(partitions)
 
 Computes the conformal $p$-value for one or more partitions.
 
-Given a partition $\theta$, its KDE score is first computed. The returned value is then obtained as the fraction of calibration partitions whose KDE score is less than or equal to that of $\theta$, with a finite-sample correction. This quantity can be interpreted as a conformal $p$-value under the assumption that the calibration samples and the tested partition are jointly iid from the posterior distribution [4].
+Given a partition $\theta$, its KDE score is first computed. The returned value $p(\theta)$ is then obtained as the fraction of calibration partitions whose KDE score is less than or equal to that of $\theta$, with a finite-sample correction. This quantity can be interpreted as a conformal $p$-value under the assumption that the calibration samples and the tested partition are jointly iid from the posterior distribution. Moreover, the set of partitions $\theta$ with $p(\theta)\geq \alpha$ is a set with posterior coverage at least $1-\alpha$ [4].
 
 The method also supports batch evaluation: if multiple partitions are provided, $p$-values are computed independently for each of them in a vectorized and parallelized manner.
 
@@ -234,6 +233,15 @@ PartitionBall(
 )
 ```
 
+#### Parameters
+
+- **`point_estimate_partition`**: array-like of shape `n`  
+  A partition at which to center the credible set (usually estimated in advance).
+- **`metric`**: `'vi'` or `'binder'` (default `'vi'`)  
+  Distance used internally by the kernel.
+- **`remap_labels`**: bool (default `True`)  
+  Whether cluster labels are remapped internally.
+
 ---
 
 ### Methods
@@ -244,7 +252,20 @@ PartitionBall(
 score(partitions)
 ```
 
-Computes distances between each partition and the center partition.
+Computes the metric ball score for one or more partitions.
+
+For any partition $\theta$, given a distance $\mathcal D$ between partitions and denoting by $\hat\theta$ the partition corresponding to `point_estimate_partition`, the ball score for $\theta$ is defined as
+
+$$
+\tilde s(\theta) = -\mathcal D(\theta,\hat\theta).
+$$
+
+- **Parameters**
+  - `partitions`: a single partition (array of length `n`) or an array of partitions of shape `(m, n)`
+
+- **Returns**
+  - A one-dimensional array of length `m` containing the KDE score of each partition
+
 
 ---
 
@@ -254,28 +275,39 @@ Computes distances between each partition and the center partition.
 calibrate(calib_partitions)
 ```
 
-Computes calibration distances to the center partition.
+Computes the ball scores for all partitions in `calib_partitions`.
+
+This method must be called before computing p-values.
+
+- **Parameters**
+  - `calib_partitions`: array of calibration partitions of shape `(m, n)`
+
+- **Side effects**
+  After calling this method, the following attributes are available:
+
+  - `calib_partitions_`: the calibration partitions
+  - `calib_scores_`: ball scores for all calibration partitions
 
 ---
 
 #### `compute_p_value`
 
 ```python
-compute_p_value(partition)
+compute_p_value(partitions)
 ```
 
-Computes a non-conformity p-value based on distance to the center.
+Computes the conformal $p$-value for one or more partitions.
 
-The returned value is the fraction of calibration partitions whose distance to the center is greater than or equal to that of the given partition, with a standard finite-sample correction. Smaller distances correspond to greater posterior typicality.
+Given a partition $\theta$, its ball score $\tilde s(\theta)$ is first computed. The returned value $\tilde p(\theta)$ is then obtained as the fraction of calibration partitions whose ball score is less than or equal $\tilde s(\theta)$, with a finite-sample correction. This quantity can be interpreted as a conformal $p$-value under the assumption that the calibration samples and the tested partition are jointly iid from the posterior distribution. Moreover, the set of partitions $\theta$ with $\tilde p(\theta)\geq \alpha$ is a ball (in the chosen metric) around `point_estimate_partition` with posterior coverage at least $1-\alpha$ [4].
 
----
+The method also supports batch evaluation: if multiple partitions are provided, $p$-values are computed independently for each of them in a vectorized and parallelized manner.
 
-## Notes
+- **Parameters**
+  - `partitions`: either a single partition (array of length `n`) or an array of partitions of shape `(m, n)`
 
-- All distance computations are Numba-jitted for efficiency.
-- Pairwise distance calculations scale quadratically in the number of calibration samples.
-- The library is agnostic to the source of partition samples and can be used with any partition-valued MCMC output.
-
+- **Returns**
+  - If a single partition is provided, returns a scalar $p$-value in $(0,1]$
+  - If multiple partitions are provided, returns an array of $p$-values of length `m`
 ---
 
 ## References
@@ -291,3 +323,4 @@ The returned value is the fraction of calibration partitions whose distance to t
 [5] Rodriguez, A., & Laio, A. (2014). Clustering by fast search and find of density peaks. Science, 344(6191), 1492-1496.
 
 [6] Wade, S., & Ghahramani, Z. (2018). Bayesian cluster analysis: Point estimation and credible balls (with discussion). Bayesian Analysis, 13(2), 559–626.
+
