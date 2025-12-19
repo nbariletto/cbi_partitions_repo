@@ -379,11 +379,3 @@ class PartitionBall:
     
         scores = self.score(p)
         return self._pvals(scores, self.calib_scores_)
-
-
-
-
-
-
-
-
