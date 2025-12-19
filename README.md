@@ -15,6 +15,10 @@ You can install the library directly from GitHub into any Python environment:
 pip install https://github.com/nbariletto/cbi_partitions/archive/main.zip
 ```
 
+## Tutorial
+
+A step-by-step tutorial on `cbi_partitions` can be found [here](https://nbariletto.github.io/cbi_partitions_repo/).
+
 ---
 
 ## Overview
@@ -317,6 +321,7 @@ The method also supports batch evaluation: if multiple partitions are provided, 
 [5] Rodriguez, A., & Laio, A. (2014). Clustering by fast search and find of density peaks. Science, 344(6191), 1492-1496.
 
 [6] Wade, S., & Ghahramani, Z. (2018). Bayesian cluster analysis: Point estimation and credible balls (with discussion). Bayesian Analysis, 13(2), 559–626.
+
 
 
 
