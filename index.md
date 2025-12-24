@@ -38,7 +38,7 @@ We generate a dataset of $n = 100$ observations from a mixture of three Gaussian
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Simulation Configuration
+# Simulation configuration
 config = {
     'n_obs': 100, 
     'dim': 2, 
@@ -61,7 +61,7 @@ def simulate_gmm_data(n_obs, dim, n_clusters, seed):
 
 X, true_labels = simulate_gmm_data(**config)
 
-# Visualize Ground Truth
+# Visualize ground truth
 plt.figure(figsize=(3, 2))
 plt.scatter(X[:,0], X[:,1], c=true_labels, cmap='brg', edgecolor='k', s=50)
 plt.show()
