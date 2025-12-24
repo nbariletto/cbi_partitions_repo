@@ -1,6 +1,6 @@
 ---
 layout: default
-title: CBI for RPMs
+title: CBI for Random Partition Models
 description: A Python tutorial
 ---
 
@@ -330,10 +330,10 @@ We therefore test inclusion in both sets for the following partitions:
 The plot below illustrates these two partitions:
 
 ```python
-# 2. Partition far from modes (vertical split)
+# Partition far from modes (vertical split)
 far_labels = (X[:, 0] > 2.5).astype(np.int64)
 
-# 3. Partition between modes (collapsed partition with split top-left corner)
+# Partition between modes (collapsed partition with split top-left corner)
 between_labels = collapsed_labels.copy()
 mask = (between_labels == 0) & (X[:, 1] >= 3.23)
 between_labels[mask] = 5
@@ -352,7 +352,7 @@ plt.show()
 We now examine the results of hypothesis testing using both the VI-KDE and VI-ball scores.
 
 ```python
-# Run conformal tests with KDE score
+# Run tests with KDE score
 p_val_far = kde.compute_p_value(far_labels)
 p_val_between = kde.compute_p_value(between_labels)
 
