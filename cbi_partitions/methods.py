@@ -197,7 +197,7 @@ class PartitionKDE:
         self.n_train_ = self.train_partitions_.shape[0]
         self.n_nodes_ = self.train_partitions_.shape[1]
 
-        print(f"Initializing PartitionKDE with {self.n_train_} train samples...")
+        print(f"Initializing PartitionKDE...")
         self._warmup()
         print(f"Initialization completed.")
 
@@ -403,6 +403,7 @@ class PartitionBall:
     
         scores = self.score(p)
         return _pvals(scores, self.calib_scores_)
+
 
 
 
