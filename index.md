@@ -38,7 +38,6 @@ We generate a dataset of $n = 100$ observations from a mixture of three Gaussian
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Simulation configuration
 config = {
     'n_obs': 100, 
     'dim': 2, 
@@ -75,7 +74,6 @@ We now fit a $PY(0.03, 0.01)$ mean–covariance Gaussian mixture model. The MCMC
 ```python
 from pyrichlet import mixture_models 
 
-# MCMC parameters
 mcmc_config = {
     'n_final_samples': 6000,
     'burn_in': 1000,
@@ -84,7 +82,6 @@ mcmc_config = {
     'py_sigma': 0.01,
 }
 
-print("--- Running Pyrichlet MCMC ---")
 total_iter = mcmc_config['burn_in'] + (mcmc_config['n_final_samples'] * mcmc_config['thinning'])
 dim = config['dim']
 
@@ -103,7 +100,9 @@ mm = mixture_models.PitmanYorMixture(
 )
 
 # Run sampler
+print("Running MCMC...")
 mm.fit_gibbs(y=X, show_progress=True)
+print("Done!")
 
 # Extract partitions
 mcmc_partitions = [samp['d'] for samp in mm.sim_params]
