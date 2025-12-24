@@ -103,30 +103,43 @@ def _vi_dist(p1, p2, remap=False):
 @njit(cache=True)
 def _binder_dist(p1, p2, remap=False):
     """Computes the Binder distance."""
-    # Note: Binder technically doesn't need remapping for memory safety 
-    # since it compares pairs, but we support the flag for consistency.
     if remap:
         p1, _ = _remap_labels(p1)
         p2, _ = _remap_labels(p2)
 
     n = p1.shape[0]
-    if n <= 1: return 0.0
-        
-    a = 0.0 
-    b = 0.0 
+    if n <= 1:
+        return 0.0
 
-    for i in range(n):
-        for j in range(i + 1, n):
-            in_same_p1 = (p1[i] == p1[j])
-            in_same_p2 = (p2[i] == p2[j])
-            
-            if in_same_p1 and in_same_p2:
-                a += 1
-            elif (not in_same_p1) and (not in_same_p2):
-                b += 1
-                
-    total_pairs = (n * (n - 1)) / 2.0
-    return 0.0 if total_pairs == 0 else 1.0 - (a + b) / total_pairs
+    C = _contingency_table(p1, p2)
+    rs = np.sum(C, axis=1)
+    cs = np.sum(C, axis=0)
+
+    a = 0.0
+    for i in range(C.shape[0]):
+        for j in range(C.shape[1]):
+            x = C[i, j]
+            if x > 1:
+                a += x * (x - 1.0) * 0.5
+
+    sr = 0.0
+    for i in range(rs.shape[0]):
+        x = rs[i]
+        if x > 1:
+            sr += x * (x - 1.0) * 0.5
+
+    sc = 0.0
+    for j in range(cs.shape[0]):
+        x = cs[j]
+        if x > 1:
+            sc += x * (x - 1.0) * 0.5
+
+    tp = n * (n - 1.0) * 0.5
+    if tp == 0.0:
+        return 0.0
+
+    b = tp - sr - sc + a
+    return 1.0 - (a + b) / tp
 
 @njit(cache=True)
 def _calculate_distance(p1, p2, metric_code, remap):
@@ -403,6 +416,7 @@ class PartitionBall:
     
         scores = self.score(p)
         return _pvals(scores, self.calib_scores_)
+
 
 
 
