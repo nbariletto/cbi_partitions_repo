@@ -136,7 +136,7 @@ plt.show()
 
 <br>
 
-### 2. CBI – Initialization
+### 2. CBI – Initialization and calibration
 
 To begin, we import `PartitionKDE` and `PartitionBall` from the `cbi_partitions` library.
 
@@ -173,10 +173,9 @@ train_partitions = partitions[indices[:split_idx]]
 calib_partitions = partitions[indices[split_idx:]]
 ```
 
-We are now ready to initialize the model and compute the calibration scores. This can be accomplished in just a few simple lines of code:
+We are now ready to initialize the model. This step includes an automatic warmup routine that triggers Numba's JIT compilation on tiny dummy arrays. This incurs a one-time compilation cost upfront, ensuring that all subsequent operations (such as calibration) execute immediately at full native machine speed.
 
 ```python
-# Initialize CBI pipeline
 kde = PartitionKDE(
     train_partitions=train_partitions,
     metric='vi', # default, can select 'binder' as well
@@ -184,9 +183,11 @@ kde = PartitionKDE(
     subsample_size=None, # default
     remap_labels=False # default
 )
+```
 
-# Compute all quantities needed for CBI
-print("Calibrating KDE model...")
+Then, all the variables needed for CBI are computed as follows:
+
+```python
 kde.calibrate(calib_partitions)
 ```
 
@@ -197,7 +198,7 @@ kde.calibrate(calib_partitions)
 - specify a random training subsample size for computing the calibration scores (`None`, recommended, uses the full training set),
 - enable or disable a custom remapping of cluster labels to facilitate VI distance computations (you should set this to `True` if your partitions are encoded using large or sparse integers).
 
-Additionally, for custom uses such as plotting, the attributes `kde.calib_scores_` and `kde.dpc_delta_` provide access to the computed calibration scores and the separation values $\delta$ required for the multimodality analysis below.
+Additionally, for custom uses such as plotting, the attributes `kde.calib_scores_` and `kde.dpc_delta_` (available after calibration) provide access to the computed calibration scores and the separation values $\delta$ required for the multimodality analysis below.
 
 <br>
 
